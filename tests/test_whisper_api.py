@@ -8,7 +8,7 @@ def test_whisper_api(httpx_mock):
         url="https://api.openai.com/v1/audio/transcriptions",
         method="POST",
         status_code=200,
-        text=expected_text,
+        json={"text": expected_text},
     )
     runner = CliRunner()
     with runner.isolated_filesystem():

@@ -61,9 +61,9 @@ def transcribe(audio_content: bytes, api_key: str, model: str) -> str:
     audio_file.name = "audio.mp3"  # OpenAI API requires a filename, or 400 error
 
     files = {"file": audio_file}
-    data = {"model": model, "response_format": "text"}
+    data = {"model": model, "response_format": "json"}
 
     with httpx.Client() as client:
         response = client.post(url, headers=headers, files=files, data=data)
         response.raise_for_status()
-        return response.text.strip()
+        return response.json()["text"].strip()
