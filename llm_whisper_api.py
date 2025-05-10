@@ -27,12 +27,7 @@ def register_commands(cli):
             cat audio.mp3 | llm whisper-api - > output.txt
             llm whisper-api -m gpt-4o-transcribe audio.mp3 > output.txt
         """
-        # Read the entire content into memory first
-        audio_content = audio_file.read()
-        audio_file.close()
-        audio_stream = io.BytesIO(audio_content)
-        suffix = Path(audio_file.name).suffix
-        audio_stream.name = f"audio{suffix}"  # OpenAI API requires a filename, or 400 error
+        audio_stream = load_audio(audio_file)
 
         key = llm.get_key(api_key, "openai")
         if not key:
@@ -41,6 +36,16 @@ def register_commands(cli):
             click.echo(transcribe(audio_stream, key, model))
         except httpx.HTTPError as ex:
             raise click.ClickException(str(ex))
+
+
+def load_audio(audio_file) -> io.BytesIO:
+    # Read the entire content into memory first
+    audio_content = audio_file.read()
+    audio_file.close()
+    audio_stream = io.BytesIO(audio_content)
+    suffix = Path(audio_file.name).suffix
+    audio_stream.name = f"audio{suffix}"  # OpenAI API requires a filename, or 400 error
+    return audio_stream
 
 
 def transcribe(audio_stream: io.BytesIO, api_key: str, model: str) -> str:
