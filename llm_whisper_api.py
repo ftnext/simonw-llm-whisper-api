@@ -69,7 +69,7 @@ def transcribe(audio_stream: io.BytesIO, api_key: str, model: str) -> str:
     files = {"file": audio_stream}
     data = {"model": model, "response_format": "json"}
 
-    with httpx.Client() as client:
+    with httpx.Client(timeout=httpx.Timeout(5.0, read=180.0)) as client:
         response = client.post(url, headers=headers, files=files, data=data)
         response.raise_for_status()
         return response.json()["text"].strip()
